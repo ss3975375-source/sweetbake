@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SweetBake — Bakery Billing</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff8f2;--card:#fff;--ink:#33251f;--muted:#806e65;--accent:#b85c38;--line:#eadbd1;--green:#438a63;--danger:#b84444;--shadow:0 8px 24px #4d29140f;--serif:Fraunces,Georgia,serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer;border:0}:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sidebar{width:235px;background:#3b2922;color:#fff;padding:24px 16px;position:fixed;inset:0 auto 0 0;z-index:4}.brand{font:800 24px var(--serif);padding:8px 10px 28px}.brand span{color:#f3b17e}
+.nav button{width:100%;padding:12px 14px;margin:3px 0;border-radius:10px;text-align:left;background:transparent;color:#eadfd9}.nav button.active,.nav button:hover{background:#5a3c31;color:#fff}
+.main{margin-left:235px;padding:24px 28px;max-width:1400px}
+.bar{display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-bottom:14px;font-size:13px}.chip{padding:6px 11px;border-radius:99px;background:#f4e5dc;color:var(--accent);font-weight:600}.chip.ok{background:#e0f1e8;color:var(--green)}
+.bar select{padding:6px;border:1px solid var(--line);border-radius:8px;background:#fff;max-width:200px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:20px}.top h1{margin:0;font:800 28px var(--serif)}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.metric{font:800 26px var(--serif);margin:6px 0}.green{color:var(--green)}
+.section{margin-top:20px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap}.section-head h2{font-size:18px;margin:0}
+.btn{background:var(--accent);color:#fff;border-radius:10px;padding:10px 15px;font-weight:700}.btn.secondary{background:#f4e5dc;color:var(--accent)}.btn.danger{background:#f8dddd;color:var(--danger)}.btn.sm{padding:6px 10px;font-size:13px}
+table{width:100%;border-collapse:collapse}.table-card{overflow:auto;padding:6px 10px}.table-card table{min-width:620px}th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left}th{font-size:12px;color:var(--muted)}td:last-child,th:last-child{text-align:right}td:last-child{white-space:nowrap}
+.form{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}.field input,.field select,.item-row input,.item-row select,.search{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff}.full{grid-column:1/-1}.search{width:240px}
+.modal{position:fixed;inset:0;background:#1d100b80;display:none;align-items:center;justify-content:center;padding:18px;z-index:9}.modal.show{display:flex}.modal-box{background:#fffaf7;width:min(560px,100%);border-radius:18px;padding:22px;max-height:92vh;overflow:auto}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.modal-head h2{margin:0}.close{background:transparent;font-size:26px;color:var(--muted)}
+.item-row{display:grid;grid-template-columns:1fr 80px 105px 40px;gap:8px;margin-bottom:8px}
+.sums{margin:16px 0;text-align:right;line-height:1.8}.sums b{font:800 22px var(--serif)}
+.empty{text-align:center;padding:26px;color:var(--muted)}.page{display:none}.page.active{display:block}
+.bars{display:flex;gap:10px;align-items:flex-end;height:130px}.bars div{flex:1;text-align:center;font-size:12px;color:var(--muted)}.bars i{display:block;background:var(--accent);border-radius:6px 6px 0 0;min-height:3px;margin-bottom:5px}
+.login{position:fixed;inset:0;background:var(--bg);z-index:20;display:none;align-items:center;justify-content:center;padding:20px}.login.show{display:flex}.login .card{max-width:380px;text-align:center;padding:32px}.login h1{font:800 32px var(--serif);margin:0 0 6px}.login .btn{width:100%;margin-top:12px;padding:13px}
+.mem{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+@media(max-width:850px){.sidebar{width:70px;padding:15px 8px}.brand{font-size:0;padding:8px}.brand:after{content:"🍰";font-size:24px}.nav button{font-size:0;text-align:center}.nav button:before{font-size:20px}
+[data-page=dashboard]:before{content:"⌂"}[data-page=billing]:before{content:"🧾"}[data-page=products]:before{content:"🍞"}[data-page=customers]:before{content:"👥"}[data-page=records]:before{content:"📊"}[data-page=settings]:before{content:"⚙"}
+.main{margin-left:70px;padding:16px}.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:550px){.grid,.form{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.search{width:100%}.item-row{grid-template-columns:1fr 64px 90px 36px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="login" id="login"><div class="card"><h1>SweetBake</h1><p class="muted">Sign in to keep your bills, products and customers on every device, and share them with your staff.</p>
+<button class="btn" id="gBtn" onclick="signIn()">Continue with Google</button><div class="muted" id="gNote" style="font-size:13px;margin-top:8px"></div>
+<button class="btn secondary" onclick="useLocal()">Use on this device only</button></div></div>
+
+<aside class="sidebar"><div class="brand">Sweet<span>Bake</span></div><nav class="nav">
+<button class="active" data-page="dashboard">Dashboard</button><button data-page="billing">New Bill</button><button data-page="products">Products</button><button data-page="customers">Customers</button><button data-page="records">Records</button><button data-page="settings">Settings</button></nav></aside>
+<main class="main">
+<div class="bar" id="bar"></div>
+<section id="dashboard" class="page active"><div class="top"><div><h1 id="hello">Hello 👋</h1><div class="muted" id="today"></div></div><button class="btn" onclick="openBill()">+ New Bill</button></div>
+<div class="grid"><div class="card"><div class="muted">Today's sales</div><div class="metric" id="mSales"></div><div class="muted" id="mBills"></div></div>
+<div class="card"><div class="muted">This month</div><div class="metric" id="mMonth"></div><div class="muted" id="mAvg"></div></div>
+<div class="card"><div class="muted">Products</div><div class="metric" id="mProducts"></div><div class="muted">in catalogue</div></div>
+<div class="card"><div class="muted">Customers</div><div class="metric" id="mCustomers"></div><div class="muted">saved</div></div></div>
+<div class="section card"><div class="section-head"><h2>Last 7 days</h2></div><div class="bars" id="bars"></div></div>
+<div class="section"><div class="section-head"><h2>Recent bills</h2><button class="btn secondary" onclick="showPage('records')">View all</button></div>
+<div class="card table-card"><table><thead><tr><th>Bill</th><th>Customer</th><th>Date</th><th>Payment</th><th>Amount</th></tr></thead><tbody id="recentBills"></tbody></table></div></div></section>
+
+<section id="billing" class="page"><div class="top"><div><h1>New bill</h1><div class="muted">Add items and save the sale.</div></div></div><div class="card">
+<div class="form"><div class="field"><label>Customer</label><input id="billCustomer" list="custList" placeholder="Walk-in customer"><datalist id="custList"></datalist></div>
+<div class="field"><label>Payment</label><select id="billPayment"><option>Cash</option><option>UPI</option><option>Card</option><option>Credit</option></select></div></div>
+<div class="section-head section"><h2>Items</h2><button class="btn secondary" onclick="addItem()">+ Add item</button></div><div id="items"></div>
+<div class="form"><div class="field"><label>Discount (₹)</label><input id="billDisc" type="number" min="0" value="0" oninput="updateTotal()"></div></div>
+<div class="sums"><div class="muted">Subtotal <span id="bSub"></span></div><div class="muted" id="bTaxRow"></div>Total <b id="billTotal"></b></div>
+<button class="btn" onclick="saveBill()">Save bill</button></div></section>
+
+<section id="products" class="page"><div class="top"><div><h1>Products</h1><div class="muted">Bakery items and prices.</div></div><button class="btn" onclick="openProduct()">+ Add product</button></div>
+<div class="card table-card"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th></th></tr></thead><tbody id="productsTable"></tbody></table></div></section>
+
+<section id="customers" class="page"><div class="top"><div><h1>Customers</h1><div class="muted">Customer records.</div></div><button class="btn" onclick="openCustomer()">+ Add customer</button></div>
+<div class="card table-card"><table><thead><tr><th>Name</th><th>Phone</th><th>Notes</th><th></th></tr></thead><tbody id="customersTable"></tbody></table></div></section>
+
+<section id="records" class="page"><div class="top"><div><h1>Sales records</h1><div class="muted">Saved billing history.</div></div><div><input class="search" id="recordSearch" placeholder="Search bills" oninput="renderRecords()"> <button class="btn secondary" onclick="exportCSV()">Export CSV</button></div></div>
+<div class="card table-card"><table><thead><tr><th>Bill</th><th>Customer</th><th>Date</th><th>Payment</th><th>Amount</th><th></th></tr></thead><tbody id="recordsTable"></tbody></table></div></section>
+
+<section id="settings" class="page"><div class="top"><div><h1>Settings</h1><div class="muted">Shop details and sharing.</div></div></div>
+<div class="card"><div class="form"><div class="field"><label>Shop name</label><input id="sName"></div><div class="field"><label>GST number (optional)</label><input id="sGst"></div>
+<div class="field"><label>Address (printed on bills)</label><input id="sAddr"></div><div class="field"><label>Tax on bills (%)</label><input id="sTax" type="number" min="0" step=".01"></div></div><br><button class="btn" onclick="saveSettings()">Save settings</button></div>
+<div class="section card" id="shareCard"></div></section>
+</main><div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+
+<script type="module">
+/* ===== 1. PASTE YOUR FIREBASE WEB CONFIG HERE (Firebase console → Project settings → Your apps) ===== */
+const CFG={apiKey:"YOUR_API_KEY",authDomain:"YOUR_PROJECT.firebaseapp.com",projectId:"YOUR_PROJECT",appId:"YOUR_APP_ID"};
+const cloudOn=!CFG.apiKey.startsWith('YOUR');
+const $=id=>document.getElementById(id),KEY='sweetbake_v1',V='10.12.2',G=`https://www.gstatic.com/firebasejs/${V}/`;
+const DEF=()=>({products:[{id:1,name:'Chocolate Cake',cat:'Cakes',price:650},{id:2,name:'Veg Puff',cat:'Snacks',price:35},{id:3,name:'Chocolate Brownie',cat:'Desserts',price:80},{id:4,name:'Bread',cat:'Breads',price:45}],customers:[],settings:{name:'SweetBake Bakery',addr:'',gst:'',tax:0},bills:[]});
+let S=DEF(),user=null,shop=null,shopRef=null,shared=[],unsubs=[],mode='none',F,A,auth,fs;
+
+/* ---------- storage layer (local or Firestore) ---------- */
+function loadLocal(){const d=JSON.parse(localStorage.getItem(KEY)||'null');S=d?{...DEF(),...d}:DEF();S.settings={...DEF().settings,...S.settings};S.bills.forEach(b=>b.id=b.id||b.no);mode='local';render()}
+const saveLocal=()=>localStorage.setItem(KEY,JSON.stringify(S));
+async function saveMeta(){const m={products:S.products,customers:S.customers,settings:S.settings};if(mode==='cloud')await F.setDoc(shopRef,m,{merge:true});else{saveLocal();render()}}
+async function putBill(b){if(mode==='cloud')await F.setDoc(F.doc(shopRef,'bills',b.id),b);else{S.bills.push(b);saveLocal();render()}}
+async function removeBill(id){if(mode==='cloud')await F.deleteDoc(F.doc(shopRef,'bills',id));else{S.bills=S.bills.filter(b=>b.id!==id);saveLocal();render()}}
+
+/* ---------- Google sign-in + cloud ---------- */
+if(cloudOn){try{const app=(F=await import(G+'firebase-app.js')).initializeApp(CFG);A=await import(G+'firebase-auth.js');fs=await import(G+'firebase-firestore.js');F={...F,...fs};
+ auth=A.getAuth(app);F.db=F.initializeFirestore(app,{localCache:F.persistentLocalCache({tabManager:F.persistentMultipleTabManager()})});
+ A.onAuthStateChanged(auth,async u=>{if(u){user=u;$('login').classList.remove('show');await listShared();openShop(u.uid)}else{user=null;unwatch();if(localStorage.sb_local)loadLocal();else $('login').classList.add('show');bar()}})}catch(e){console.error(e);cloudOn2(false)}}
+else cloudOn2(false);
+function cloudOn2(){$('gBtn').disabled=true;$('gNote').textContent='Google sign-in is not set up yet (see README). You can still use the app on this device.';if(!localStorage.sb_local)$('login').classList.add('show');else loadLocal()}
+function unwatch(){unsubs.forEach(f=>f());unsubs=[]}
+async function listShared(){try{const s=await F.getDocs(F.query(F.collection(F.db,'shops'),F.where('members','array-contains',user.email.toLowerCase())));shared=s.docs.map(d=>({id:d.id,name:d.data().settings?.name||'Shared shop',owner:d.data().ownerEmail}))}catch(e){shared=[]}}
+async function openShop(id){unwatch();mode='cloud';shopRef=F.doc(F.db,'shops',id);
+ if(id===user.uid&&!(await F.getDoc(shopRef)).exists()){const loc=JSON.parse(localStorage.getItem(KEY)||'null');const up=loc&&confirm('Copy the bills and data saved on this device into your Google account?');const base=up?{...DEF(),...loc}:DEF();
+  await F.setDoc(shopRef,{ownerUid:user.uid,ownerEmail:user.email,members:[],products:base.products,customers:base.customers,settings:base.settings});if(up)for(const b of base.bills)await F.setDoc(F.doc(shopRef,'bills',b.no),{...b,id:b.no})}
+ unsubs.push(F.onSnapshot(shopRef,s=>{const d=s.data();if(!d)return;shop={id,...d};S.products=d.products||[];S.customers=d.customers||[];S.settings={...DEF().settings,...d.settings};render()},e=>alert('Could not open this shop: '+e.message)));
+ unsubs.push(F.onSnapshot(F.query(F.collection(shopRef,'bills'),F.orderBy('date')),s=>{S.bills=s.docs.map(d=>d.data());render()}))}
+async function signIn(){try{const p=new A.GoogleAuthProvider();await A.signInWithPopup(auth,p)}catch(e){if(e.code==='auth/popup-blocked')A.signInWithRedirect(auth,new A.GoogleAuthProvider());else if(e.code!=='auth/popup-closed-by-user')alert('Sign-in failed: '+e.message+'\nGoogle sign-in needs the app opened from http(s) or localhost, not as a file.')}}
+function useLocal(){localStorage.sb_local=1;$('login').classList.remove('show');loadLocal()}
+async function logout(){localStorage.removeItem('sb_local');shop=null;await A.signOut(auth)}
+function bar(){const b=$('bar');if(mode==='cloud'&&user){const opts=[{id:user.uid,name:'My shop'},...shared].map(s=>`<option value="${s.id}"${shop&&s.id===shop.id?' selected':''}>${esc(s.name)}</option>`).join('');
+ b.innerHTML=`<span class="chip ok">☁ Synced · ${esc(user.email)}</span>${shared.length?`<select onchange="openShop(this.value)">${opts}</select>`:''}<button class="btn secondary sm" onclick="logout()">Sign out</button>`}
+ else b.innerHTML=`<span class="chip">This device only</span>${cloudOn?'<button class="btn sm" onclick="signIn()">Sign in with Google</button>':''}`}
+
+/* ---------- helpers & rendering ---------- */
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const ld=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const fmtDate=s=>new Date(s).toLocaleDateString('en-IN'),emptyRow=(n,t)=>`<tr><td colspan="${n}" class="empty">${t}</td></tr>`;
+const isOwner=()=>mode!=='cloud'||!shop||shop.ownerUid===user.uid;
+let page='dashboard';
+function showPage(id){page=id;document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));if(id==='billing'&&!document.querySelector('.item-row'))resetBill();if(id==='settings')fillSettings();render()}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+function render(){bar();$('custList').innerHTML=S.customers.map(c=>`<option value="${esc(c.name)}">`).join('');({dashboard:renderDashboard,products:renderProducts,customers:renderCustomers,records:renderRecords,settings:renderShare,billing:()=>{}})[page]()}
+function renderDashboard(){const h=new Date().getHours();$('hello').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+' 👋';$('today').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ const ds=ld(new Date()),ym=ds.slice(0,7),sum=a=>a.reduce((s,b)=>s+b.total,0),today=S.bills.filter(b=>ld(b.date)===ds),month=S.bills.filter(b=>ld(b.date).slice(0,7)===ym);
+ $('mSales').textContent=money(sum(today));$('mBills').textContent=today.length+' bill'+(today.length===1?'':'s');$('mMonth').textContent=money(sum(month));$('mAvg').textContent=month.length?'avg '+money(sum(month)/month.length)+' per bill':'no bills yet';
+ $('mProducts').textContent=S.products.length;$('mCustomers').textContent=S.customers.length;
+ const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);const k=ld(d);return{l:d.toLocaleDateString('en-IN',{weekday:'short'}),v:sum(S.bills.filter(b=>ld(b.date)===k))}}),mx=Math.max(...days.map(d=>d.v),1);
+ $('bars').innerHTML=days.map(d=>`<div title="${money(d.v)}"><i style="height:${d.v/mx*100}px"></i>${d.l}</div>`).join('');
+ $('recentBills').innerHTML=S.bills.slice().reverse().slice(0,5).map(b=>`<tr><td>${esc(b.no)}</td><td>${esc(b.customer)}</td><td>${fmtDate(b.date)}</td><td>${b.payment}</td><td>${money(b.total)}</td></tr>`).join('')||emptyRow(5,'No bills yet. Create your first bill.')}
+function renderProducts(){$('productsTable').innerHTML=S.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.cat)}</td><td>${money(p.price)}</td><td><button class="btn secondary sm" onclick="openProduct(${p.id})">Edit</button> <button class="btn danger sm" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`).join('')||emptyRow(4,'No products yet. Add one to start billing.')}
+function renderCustomers(){$('customersTable').innerHTML=S.customers.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.notes||'-')}</td><td><button class="btn secondary sm" onclick="openCustomer(${c.id})">Edit</button> <button class="btn danger sm" onclick="deleteCustomer(${c.id})">Delete</button></td></tr>`).join('')||emptyRow(4,'No customers yet.')}
+function renderRecords(){const q=($('recordSearch').value||'').toLowerCase();$('recordsTable').innerHTML=S.bills.slice().reverse().filter(b=>(b.no+' '+b.customer+' '+b.payment).toLowerCase().includes(q)).map(b=>`<tr><td>${esc(b.no)}</td><td>${esc(b.customer)}</td><td>${fmtDate(b.date)}</td><td>${b.payment}</td><td>${money(b.total)}</td><td><button class="btn secondary sm" onclick="printBill('${b.id}')">Print</button> <button class="btn danger sm" onclick="deleteBill('${b.id}')">Delete</button></td></tr>`).join('')||emptyRow(6,'No matching bills.')}
+function exportCSV(){const r=[['Bill','Date','Customer','Payment','Items','Subtotal','Discount','Tax','Total'],...S.bills.map(b=>[b.no,ld(b.date),b.customer,b.payment,b.items.map(i=>i.qty+'x '+i.name).join('; '),b.subtotal??b.total,b.discount||0,b.tax||0,b.total])];
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([r.map(x=>x.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n')],{type:'text/csv'}));a.download='sweetbake-sales.csv';a.click()}
+async function deleteBill(id){if(confirm('Delete this bill? This cannot be undone.'))await removeBill(id)}
+
+/* ---------- modals: products & customers ---------- */
+const openModal=h=>{$('modalBox').innerHTML=h;$('modal').classList.add('show')},closeModal=()=>$('modal').classList.remove('show');$('modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+const mh=t=>`<div class="modal-head"><h2>${t}</h2><button class="close" aria-label="Close" onclick="closeModal()">×</button></div>`;
+function openProduct(id){const p=S.products.find(x=>x.id===id)||{};openModal(mh(id?'Edit product':'Add product')+`<div class="form"><div class="field"><label>Product name</label><input id="pName" value="${esc(p.name)}"></div><div class="field"><label>Category</label><input id="pCat" value="${esc(p.cat)}" placeholder="Cakes"></div><div class="field"><label>Price (₹)</label><input id="pPrice" type="number" min="0" value="${p.price??''}"></div></div><br><button class="btn" onclick="saveProduct(${id||0})">Save product</button>`)}
+async function saveProduct(id){const name=$('pName').value.trim(),cat=$('pCat').value.trim()||'General',price=+$('pPrice').value;if(!name||!(price>=0)||$('pPrice').value==='')return alert('Enter a product name and a price.');
+ id?S.products=S.products.map(p=>p.id===id?{...p,name,cat,price}:p):S.products.push({id:Date.now(),name,cat,price});closeModal();await saveMeta()}
+async function deleteProduct(id){if(confirm('Delete this product?')){S.products=S.products.filter(x=>x.id!==id);await saveMeta()}}
+function openCustomer(id){const c=S.customers.find(x=>x.id===id)||{};openModal(mh(id?'Edit customer':'Add customer')+`<div class="form"><div class="field"><label>Name</label><input id="cName" value="${esc(c.name)}"></div><div class="field"><label>Phone</label><input id="cPhone" type="tel" value="${esc(c.phone)}"></div><div class="field full"><label>Notes</label><input id="cNotes" value="${esc(c.notes)}" placeholder="Optional"></div></div><br><button class="btn" onclick="saveCustomer(${id||0})">Save customer</button>`)}
+async function saveCustomer(id){const name=$('cName').value.trim(),phone=$('cPhone').value.trim(),notes=$('cNotes').value.trim();if(!name)return alert('Enter a customer name.');
+ id?S.customers=S.customers.map(c=>c.id===id?{...c,name,phone,notes}:c):S.customers.push({id:Date.now(),name,phone,notes});closeModal();await saveMeta()}
+async function deleteCustomer(id){if(confirm('Delete this customer?')){S.customers=S.customers.filter(x=>x.id!==id);await saveMeta()}}
+
+/* ---------- billing ---------- */
+function openBill(){showPage('billing');resetBill()}
+function resetBill(){$('billCustomer').value='';$('billPayment').value='Cash';$('billDisc').value=0;$('items').innerHTML='';addItem()}
+function addItem(){const d=document.createElement('div');d.className='item-row';d.innerHTML=`<select><option value="">Select product</option>${S.products.map(p=>`<option value="${p.id}">${esc(p.name)} — ${money(p.price)}</option>`).join('')}</select><input type="number" min="1" value="1" aria-label="Quantity" oninput="updateTotal()"><input type="number" min="0" step=".01" placeholder="Price" aria-label="Price" oninput="updateTotal()"><button class="btn danger" aria-label="Remove item" onclick="this.parentElement.remove();updateTotal()">×</button>`;
+ $('items').appendChild(d);d.querySelector('select').onchange=function(){const p=S.products.find(x=>x.id==this.value);d.children[2].value=p?p.price:0;updateTotal()};updateTotal()}
+function calc(){const sub=[...document.querySelectorAll('.item-row')].reduce((s,r)=>s+(+r.children[1].value||0)*(+r.children[2].value||0),0),disc=Math.min(+$('billDisc').value||0,sub),tr=+S.settings.tax||0,tax=+((sub-disc)*tr/100).toFixed(2);return{sub,disc,tr,tax,total:+(sub-disc+tax).toFixed(2)}}
+function updateTotal(){const c=calc();$('bSub').textContent=money(c.sub);$('bTaxRow').textContent=c.tr?`Tax (${c.tr}%) ${money(c.tax)}`:'';$('billTotal').textContent=money(c.total)}
+async function saveBill(){const rows=[...document.querySelectorAll('.item-row')].map(r=>{const p=S.products.find(x=>x.id==r.children[0].value);return p?{name:p.name,qty:+r.children[1].value||1,price:+r.children[2].value||0}:null}).filter(Boolean);
+ if(!rows.length)return alert('Add at least one product.');const c=calc(),now=new Date(),k=ld(now),n=S.bills.filter(b=>ld(b.date)===k).length+1,
+ id=now.getTime().toString(36)+Math.random().toString(36).slice(2,6),no='SB-'+k.replace(/-/g,'').slice(2)+'-'+String(n).padStart(3,'0');
+ const b={id,no,customer:$('billCustomer').value.trim()||'Walk-in',payment:$('billPayment').value,date:now.toISOString(),items:rows,subtotal:c.sub,discount:c.disc,taxRate:c.tr,tax:c.tax,total:c.total,by:user?.email||''};
+ await putBill(b);if(mode==='local'||true)printBill(id,b);resetBill();showPage('dashboard')}
+function printBill(id,bb){const b=bb||S.bills.find(x=>x.id===id);if(!b)return;const s=S.settings,r=b.items.map(x=>`<tr><td>${esc(x.name)}</td><td>${x.qty}</td><td>${money(x.price)}</td><td>${money(x.qty*x.price)}</td></tr>`).join('');
+ const f=document.createElement('iframe');f.style.cssText='position:fixed;width:0;height:0;border:0';document.body.appendChild(f);const w=f.contentWindow;w.document.open();
+ w.document.write(`<html><head><title>${esc(b.no)}</title><style>body{font:14px Arial;max-width:700px;margin:30px auto;color:#222}h1{text-align:center;margin-bottom:4px}.c{text-align:center;color:#666;margin:2px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}td:last-child,th:last-child{text-align:right}.t{text-align:right;margin-top:14px;line-height:1.7}.t b{font-size:20px}</style></head><body><h1>${esc(s.name)}</h1>${s.addr?`<p class="c">${esc(s.addr)}</p>`:''}${s.gst?`<p class="c">GSTIN: ${esc(s.gst)}</p>`:''}<p><b>Bill:</b> ${esc(b.no)}<br><b>Date:</b> ${fmtDate(b.date)}<br><b>Customer:</b> ${esc(b.customer)}<br><b>Payment:</b> ${b.payment}</p><table><tr><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr>${r}</table><div class="t">${b.discount?`Discount: −${money(b.discount)}<br>`:''}${b.tax?`Tax (${b.taxRate}%): ${money(b.tax)}<br>`:''}<b>Total: ${money(b.total)}</b></div><p class="c" style="margin-top:40px">Thank you for visiting ${esc(s.name)}!</p></body></html>`);w.document.close();w.focus();setTimeout(()=>{w.print();setTimeout(()=>f.remove(),3000)},300)}
+
+/* ---------- settings & sharing ---------- */
+function fillSettings(){const s=S.settings;$('sName').value=s.name;$('sGst').value=s.gst||'';$('sAddr').value=s.addr||'';$('sTax').value=s.tax||0}
+async function saveSettings(){S.settings={name:$('sName').value.trim()||'SweetBake Bakery',gst:$('sGst').value.trim(),addr:$('sAddr').value.trim(),tax:+$('sTax').value||0};await saveMeta();alert('Settings saved.')}
+function renderShare(){const c=$('shareCard');if(mode!=='cloud'){c.innerHTML=`<h2>Sharing</h2><p class="muted">Sign in with Google to sync across devices and share this shop with staff.</p>`;return}
+ const mem=(shop?.members||[]),own=isOwner();c.innerHTML=`<h2>Share this shop</h2><p class="muted">${own?'People you add can sign in with that Gmail address and see and edit the same bills, products and customers.':'Owned by '+esc(shop.ownerEmail)+'. Only the owner can change who has access.'}</p>`+
+ `<div class="mem"><span>${esc(shop?.ownerEmail||'')} <span class="muted">(owner)</span></span></div>`+mem.map(m=>`<div class="mem"><span>${esc(m)}</span>${own?`<button class="btn danger sm" onclick="removeMember('${esc(m)}')">Remove</button>`:''}</div>`).join('')+
+ (own?`<div class="form section"><div class="field"><label>Gmail address</label><input id="mEmail" type="email" placeholder="staff@gmail.com"></div><div class="field"><label>&nbsp;</label><button class="btn" onclick="addMember()">Give access</button></div></div>`:'')}
+async function addMember(){const e=$('mEmail').value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(e))return alert('Enter a valid email address.');await F.updateDoc(shopRef,{members:F.arrayUnion(e)})}
+async function removeMember(e){if(confirm('Remove access for '+e+'?'))await F.updateDoc(shopRef,{members:F.arrayRemove(e)})}
+
+Object.assign(window,{signIn,useLocal,logout,openShop,showPage,openBill,openProduct,saveProduct,deleteProduct,openCustomer,saveCustomer,deleteCustomer,addItem,updateTotal,saveBill,printBill,deleteBill,renderRecords,exportCSV,saveSettings,addMember,removeMember,closeModal});
+if(!cloudOn&&localStorage.sb_local)loadLocal();else if(mode==='none')render();
+</script></body></html>
